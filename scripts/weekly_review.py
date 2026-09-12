@@ -51,6 +51,8 @@ def wecom_push(url: str):
 
 
 def main():
+    sh("git", "config", "user.name", "naiba-bot")
+    sh("git", "config", "user.email", "naiba-bot@users.noreply.github.com")
     material = stats_and_text()
     try:
         review = glm.chat(glm.WEEKLY_SYSTEM, material, max_tokens=1200)

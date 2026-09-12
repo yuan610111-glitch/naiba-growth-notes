@@ -69,6 +69,8 @@ def build_markdown(raw: str) -> str:
 
 
 def main():
+    sh("git", "config", "user.name", "naiba-bot")
+    sh("git", "config", "user.email", "naiba-bot@users.noreply.github.com")
     title = os.environ["ISSUE_TITLE"]
     m = DATE_RE.search(title)
     entry_date = m.group(1) if m else datetime.date.today().isoformat()

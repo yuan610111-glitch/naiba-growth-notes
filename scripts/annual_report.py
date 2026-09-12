@@ -34,6 +34,8 @@ def collect():
 
 
 def main():
+    sh("git", "config", "user.name", "naiba-bot")
+    sh("git", "config", "user.email", "naiba-bot@users.noreply.github.com")
     material = collect()
     if not material:
         print(f"{YEAR} 年还没有任何记录，无法生成年度报告")
