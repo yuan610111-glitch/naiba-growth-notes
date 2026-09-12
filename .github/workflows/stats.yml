@@ -1,0 +1,25 @@
+name: 更新成长看板
+on:
+  push:
+    paths: ["daily/**"]
+  schedule:
+    - cron: "0 14 * * *"   # 北京时间 22:00 兜底刷新（防当天只在23:50记录导致看板滞后）
+
+permissions:
+  contents: write
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 生成看板并 commit
+        run: |
+          git config user.name "naiba-bot"
+          git config user.email "naiba-bot@users.noreply.github.com"
+          python scripts/update_readme.py > /dev/null
+          git add README.md
+          git diff --cached --quiet && echo "无变化" || (git commit -m "📊 更新成长看板" && git push)
