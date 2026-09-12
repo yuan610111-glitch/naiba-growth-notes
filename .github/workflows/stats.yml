@@ -2,6 +2,7 @@ name: 更新成长看板
 on:
   push:
     paths: ["daily/**"]
+  workflow_dispatch:
   schedule:
     - cron: "0 14 * * *"   # 北京时间 22:00 兜底刷新（防当天只在23:50记录导致看板滞后）
 
