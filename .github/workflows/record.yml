@@ -14,7 +14,6 @@ concurrency:
 jobs:
   save:
     if: |
-      !github.event.comment.author_association == 'NONE' &&
       github.event.comment.user.login != 'github-actions[bot]' &&
       startsWith(github.event.issue.title, '📖 记录 ') &&
       github.event.issue.user.login == 'github-actions[bot]'
