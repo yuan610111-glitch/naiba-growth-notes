@@ -1,0 +1,34 @@
+name: 回复即记录
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: write
+
+concurrency:
+  group: save-reply-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  save:
+    if: |
+      !github.event.comment.author_association == 'NONE' &&
+      github.event.comment.user.login != 'github-actions[bot]' &&
+      startsWith(github.event.issue.title, '📖 记录 ') &&
+      github.event.issue.user.login == 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 保存回复为日记并 commit（含隐私打码）
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+        run: python scripts/save_issue_reply.py

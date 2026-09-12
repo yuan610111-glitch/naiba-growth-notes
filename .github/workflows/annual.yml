@@ -1,0 +1,27 @@
+name: 年度报告
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "生成哪一年的报告（默认今年）"
+        required: false
+        default: ""
+
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  annual:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 生成『未来你』年度信
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
+          YEAR: ${{ github.event.inputs.year }}
+        run: python scripts/annual_report.py

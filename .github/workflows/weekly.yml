@@ -1,0 +1,27 @@
+name: 每周成长点评
+on:
+  schedule:
+    - cron: "30 13 * * 0"   # 北京时间 周日 21:30
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: write
+
+concurrency:
+  group: weekly-review
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 生成本周成长点评
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
+          SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
+        run: python scripts/weekly_review.py

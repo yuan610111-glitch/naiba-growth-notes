@@ -1,0 +1,39 @@
+name: 隐私自查
+on:
+  push:
+    paths: ["daily/**", "reviews/**"]
+
+permissions:
+  issues: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 扫描本次变更文件中的隐私信息
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FILES=$(git diff --name-only HEAD~1 HEAD -- daily reviews 2>/dev/null || true)
+          echo "变更文件: $FILES"
+          HITS=""
+          for f in $FILES; do
+            [ -f "$f" ] || continue
+            OUT=$(python scripts/privacy_check.py "$f" || true)
+            echo "$f -> $OUT"
+            if echo "$OUT" | grep -q "PRIVACY_HITS=."; then
+              HITS="$HITS\n- \`$f\`: $(echo "$OUT" | grep '⚠️' | tr '\n' ' ')"
+            fi
+          done
+          if [ -n "$HITS" ]; then
+            gh issue create --title "🔒 隐私自查：本次提交检测到疑似敏感信息（已打码，请确认）" \
+              --body "以下内容已自动打码为 🔒***，请按 [PRIVACY.md](PRIVACY.md) 核对是否还有遗漏：\n$HITS"
+          else
+            echo "未发现隐私风险 ✅"
+          fi

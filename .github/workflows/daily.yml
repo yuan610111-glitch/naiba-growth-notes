@@ -1,0 +1,26 @@
+name: 每日记录提醒
+on:
+  schedule:
+    - cron: "0 13 * * *"   # 北京时间 21:00
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: daily-issue
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 创建当日 Issue + 昨日一句话点评 + 企业微信提醒
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
+          SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
+        run: python scripts/daily_issue.py
